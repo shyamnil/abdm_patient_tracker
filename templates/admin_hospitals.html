@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Directory Management - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <header class="bg-purple-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-bold">🏥 ABDM Hospital Directory & Access Control</h1>
+            <div class="flex gap-4 items-center">
+                <a href="/admin-dashboard" class="text-xs bg-purple-800 hover:bg-purple-700 px-3 py-1.5 rounded-lg text-purple-200">← Back to Dashboard</a>
+                <a href="/logout" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-6">
+
+        <!-- Quick Actions: Manual Create & Bulk CSV Upload -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Add Single Hospital -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-sm font-bold text-slate-800 mb-3">➕ Register New Health Facility</h2>
+                <form action="/admin/add-hospital" method="POST" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" name="hfr_id" placeholder="HFR ID (e.g. IN3310000005)" required class="text-xs p-2.5 border rounded-xl outline-none">
+                        <input type="text" name="name" placeholder="Hospital Name" required class="text-xs p-2.5 border rounded-xl outline-none">
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" name="city" placeholder="City" required class="text-xs p-2.5 border rounded-xl outline-none">
+                        <input type="text" name="state" placeholder="State" required class="text-xs p-2.5 border rounded-xl outline-none">
+                        <input type="text" name="password" placeholder="Default Password" value="hosp123" required class="text-xs p-2.5 border rounded-xl outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold py-2.5 rounded-xl transition">
+                        Create Facility Credentials
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bulk CSV Upload -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800 mb-1">📁 Bulk Upload Hospital Credentials</h2>
+                    <p class="text-xs text-slate-500 mb-3">Upload CSV containing headers: <code class="bg-slate-100 p-1 rounded font-mono">hfr_id,name,city,state,password</code></p>
+                </div>
+                <form action="/admin/bulk-upload-hospitals" method="POST" enctype="multipart/form-data" class="space-y-3">
+                    <input type="file" name="file" accept=".csv" required class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2.5 rounded-xl transition">
+                        Upload & Sync CSV
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Registered Hospitals Directory & Password Management -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-md font-bold text-slate-800 mb-4">Active Facility Credentials List</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
+                        <tr>
+                            <th class="p-3">HFR ID (Username)</th>
+                            <th class="p-3">Hospital Name</th>
+                            <th class="p-3">Location</th>
+                            <th class="p-3">Current Password</th>
+                            <th class="p-3">Change Password</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for h in hospitals %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-mono text-xs text-purple-700 font-bold">{{ h.hfr_id }}</td>
+                            <td class="p-3 font-semibold text-slate-800">{{ h.name }}</td>
+                            <td class="p-3 text-xs text-slate-500">{{ h.city }}, {{ h.state }}</td>
+                            <td class="p-3 font-mono text-xs bg-slate-100 px-2 py-1 rounded inline-block my-2">{{ h.password }}</td>
+                            <td class="p-3">
+                                <form action="/admin/update-hospital-password" method="POST" class="flex gap-2">
+                                    <input type="hidden" name="hfr_id" value="{{ h.hfr_id }}">
+                                    <input type="text" name="new_password" placeholder="New Password" required class="text-xs p-1.5 border rounded-lg outline-none w-32">
+                                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-slate-400 text-xs">No registered health facilities found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

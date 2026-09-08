@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Clinical Dashboard - ABDM HIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Hospital Dashboard Header -->
+    <header class="bg-emerald-800 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-700 p-2.5 rounded-xl font-bold border border-emerald-600">
+                    🏥
+                </div>
+                <div>
+                    <h1 class="text-base font-bold leading-tight">{{ hospital_name }}</h1>
+                    <p class="text-xs text-emerald-200 font-mono">HFR ID: {{ hfr_id }}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:inline-block bg-emerald-900/60 text-emerald-200 text-xs px-3 py-1.5 rounded-full border border-emerald-700 font-medium">
+                    Health Information Provider (HIP)
+                </span>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1">
+                    🚪 Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto p-6 space-y-6 w-full flex-grow">
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div>
+                    <h2 class="text-md font-bold text-slate-800">Clinical Case Consultations</h2>
+                    <p class="text-xs text-slate-400">Review patient symptoms, regional transcripts, and provide medical advice.</p>
+                </div>
+                <button onclick="location.reload()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 font-medium transition">
+                    🔄 Refresh Queue
+                </button>
+            </div>
+
+            <!-- Patient Records Stream & Doctor Advice Form -->
+            <div class="space-y-4">
+                {% for item in patient_records %}
+                {% if item.id %}
+                <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
+                    <!-- Patient Header -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-3 gap-2">
+                        <div>
+                            <span class="font-bold text-slate-800 text-sm">{{ item.name }}</span>
+                            <span class="text-xs text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 ml-2">
+                                {{ item.abha_id }}
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-400 font-mono">
+                            Assigned: <span class="font-medium text-slate-700">{{ item.current_hospital }}</span> | Visit Date: <span class="font-bold text-slate-700">{{ item.visit_date }}</span> (Recorded: {{ item.recorded_at }})
+                        </div>
+                    </div>
+
+                    <!-- Symptoms & Translations -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200">
+                            <span class="text-indigo-600 font-bold block uppercase text-[10px]">Patient Input ({{ item.problem_type }})</span>
+                            <p class="text-slate-800 font-medium mt-1">{{ item.original_text }}</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200">
+                            <span class="text-emerald-600 font-bold block uppercase text-[10px]">English Translation</span>
+                            <p class="text-slate-800 font-medium mt-1">{{ item.translated_text }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Historical Advice Badge (If treated at another facility previously) -->
+                    {% if item.doctor_suggestion and item.doctor_suggestion != 'Awaiting doctor consultation.' and item.treating_hospital and item.treating_hospital != hospital_name %}
+                    <div class="bg-amber-50/80 border border-amber-200 p-3.5 rounded-xl space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-amber-900">👨‍⚕️ Prior Advice by {{ item.doctor_name }}</span>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300">
+                                🏥 Recorded at: {{ item.treating_hospital }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-amber-950 font-medium mt-1">{{ item.doctor_suggestion }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Doctor Consultation Form -->
+                    <form action="/hospital/add-suggestion" method="POST" class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                        <input type="hidden" name="problem_id" value="{{ item.id }}">
+                        
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <input type="text" name="doctor_name" placeholder="Attending Doctor (e.g. Dr. A. Sharma)" value="{{ item.doctor_name if item.doctor_name != 'N/A' else '' }}" required class="text-xs p-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 w-full sm:w-72 font-medium">
+                            <span class="text-xs font-semibold text-emerald-700">Attending Facility: {{ hospital_name }}</span>
+                        </div>
+                        
+                        <textarea name="doctor_suggestion" rows="2" placeholder="Enter clinical advice, prescription details, or diagnostic notes..." required class="w-full text-xs p-2.5 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500">{{ item.doctor_suggestion if item.doctor_suggestion != 'Awaiting doctor consultation.' else '' }}</textarea>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1">
+                                💾 Save Consultation Notes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <p class="text-xs text-slate-400">No active patient health records available in queue for <span class="font-bold text-slate-600">{{ hospital_name }}</span>.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <p>© 2026 Ayushman Bharat Digital Mission - Hospital Health Information Provider</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console - ABDM Master Registry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-purple-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-purple-800 p-2 rounded-lg font-bold text-lg tracking-wider">ABDM</div>
+                <div>
+                    <h1 class="text-md font-bold leading-tight">Admin System Console</h1>
+                    <p class="text-xs text-purple-200">National Health Authority - Master Registry</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <span class="text-xs bg-purple-800 px-3 py-1.5 rounded-full font-mono text-purple-200">
+                    👤 Session: {{ user }}
+                </span>
+                <a href="/logout" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition font-medium">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-8">
+
+        <!-- Metric Counter Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-400">Total ABHA Accounts</p>
+                    <h3 class="text-3xl font-extrabold text-slate-800 mt-1">{{ patient_count }}</h3>
+                </div>
+                <div class="p-3 bg-purple-50 rounded-xl text-purple-700 font-bold">👤 ABHA</div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-400">Network Facilities (HIP)</p>
+                    <h3 class="text-3xl font-extrabold text-purple-700 mt-1">{{ hospital_count }}</h3>
+                </div>
+                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600 font-bold">🏥 HFR</div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-400">Total Health Records</p>
+                    <h3 class="text-3xl font-extrabold text-emerald-600 mt-1">{{ records_count }}</h3>
+                </div>
+                <div class="p-3 bg-amber-50 rounded-xl text-amber-600 font-bold">📋 Records</div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 1: HOSPITAL MANAGEMENT ================= -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h2 class="text-md font-bold text-slate-800 flex items-center gap-2">🏥 Health Facility Registry (Hospital Directory)</h2>
+            </div>
+
+            <!-- Hospital Quick Add & Bulk CSV Upload -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Add Hospital Form -->
+                <form action="/admin/add-hospital" method="POST" class="bg-slate-50 p-4 rounded-xl border space-y-3">
+                    <h3 class="text-xs font-bold uppercase text-slate-600">Add New Hospital</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" name="hfr_id" placeholder="HFR ID (Username)" required class="text-xs p-2 border rounded-lg outline-none">
+                        <input type="text" name="name" placeholder="Hospital Name" required class="text-xs p-2 border rounded-lg outline-none">
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" name="city" placeholder="City" required class="text-xs p-2 border rounded-lg outline-none">
+                        <input type="text" name="state" placeholder="State" required class="text-xs p-2 border rounded-lg outline-none">
+                        <input type="text" name="password" placeholder="Password" value="hosp123" required class="text-xs p-2 border rounded-lg outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold py-2 rounded-lg">Register Facility</button>
+                </form>
+
+                <!-- Bulk Hospital CSV -->
+                <form action="/admin/bulk-upload-hospitals" method="POST" enctype="multipart/form-data" class="bg-slate-50 p-4 rounded-xl border flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase text-slate-600">Bulk CSV Upload (Hospitals)</h3>
+                        <p class="text-[10px] text-slate-500 mb-2">CSV Headers: <code class="bg-slate-200 p-0.5 rounded">hfr_id,name,city,state,password</code></p>
+                    </div>
+                    <input type="file" name="file" accept=".csv" required class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-purple-100 file:text-purple-700 font-medium">
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2 rounded-lg mt-2">Upload & Sync Hospitals</button>
+                </form>
+            </div>
+
+            <!-- Hospital List Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
+                        <tr>
+                            <th class="p-3">HFR ID</th>
+                            <th class="p-3">Hospital Name</th>
+                            <th class="p-3">City / State</th>
+                            <th class="p-3">Password</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for h in hospitals %}
+                        <tr>
+                            <td class="p-2 font-mono text-xs font-bold text-purple-700">{{ h.hfr_id }}</td>
+                            <form action="/admin/update-hospital" method="POST">
+                                <input type="hidden" name="hfr_id" value="{{ h.hfr_id }}">
+                                <td class="p-2"><input type="text" name="name" value="{{ h.name }}" class="text-xs p-1.5 border rounded w-full"></td>
+                                <td class="p-2">
+                                    <div class="flex gap-1">
+                                        <input type="text" name="city" value="{{ h.city }}" class="text-xs p-1.5 border rounded w-20">
+                                        <input type="text" name="state" value="{{ h.state }}" class="text-xs p-1.5 border rounded w-24">
+                                    </div>
+                                </td>
+                                <td class="p-2"><input type="text" name="password" value="{{ h.password }}" class="text-xs p-1.5 border rounded w-28 font-mono bg-yellow-50"></td>
+                                <td class="p-2 text-right">
+                                    <div class="flex justify-end gap-1">
+                                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-2.5 py-1 rounded">Save</button>
+                            </form>
+                                        <form action="/admin/delete-hospital" method="POST" onsubmit="return confirm('Delete hospital?');" class="inline">
+                                            <input type="hidden" name="hfr_id" value="{{ h.hfr_id }}">
+                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold px-2.5 py-1 rounded">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: ABHA USER MANAGEMENT ================= -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h2 class="text-md font-bold text-slate-800 flex items-center gap-2">👤 ABHA User Directory (Patients)</h2>
+            </div>
+
+            <!-- ABHA Quick Add & Bulk CSV Upload -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Add ABHA User -->
+                <form action="/admin/add-patient" method="POST" class="bg-slate-50 p-4 rounded-xl border space-y-3">
+                    <h3 class="text-xs font-bold uppercase text-slate-600">Register New ABHA User</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" name="name" placeholder="Full Name" required class="text-xs p-2 border rounded-lg">
+                        <input type="text" name="mobile" placeholder="Mobile Number" required class="text-xs p-2 border rounded-lg">
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <select name="gender" class="text-xs p-2 border rounded-lg"><option value="Male">Male</option><option value="Female">Female</option></select>
+                        <input type="date" name="dob" value="1995-01-01" required class="text-xs p-2 border rounded-lg">
+                        <input type="text" name="current_hospital" placeholder="Assigned Hospital" class="text-xs p-2 border rounded-lg">
+                    </div>
+                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold py-2 rounded-lg">Create ABHA Account</button>
+                </form>
+
+                <!-- Bulk ABHA Users CSV -->
+                <form action="/admin/bulk-upload-patients" method="POST" enctype="multipart/form-data" class="bg-slate-50 p-4 rounded-xl border flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase text-slate-600">Bulk CSV Upload (ABHA Users)</h3>
+                        <p class="text-[10px] text-slate-500 mb-2">CSV Headers: <code class="bg-slate-200 p-0.5 rounded">abha_id,name,gender,dob,mobile,current_hospital</code></p>
+                    </div>
+                    <input type="file" name="file" accept=".csv" required class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-purple-100 file:text-purple-700 font-medium">
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2 rounded-lg mt-2">Upload & Sync ABHA Users</button>
+                </form>
+            </div>
+
+            <!-- ABHA Users Directory Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
+                        <tr>
+                            <th class="p-3">ABHA Address</th>
+                            <th class="p-3">Patient Name</th>
+                            <th class="p-3">Gender / DOB</th>
+                            <th class="p-3">Mobile</th>
+                            <th class="p-3">Current Associated Facility</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for p in patients %}
+                        <tr>
+                            <td class="p-2 font-mono text-xs font-bold text-purple-700">{{ p.abha_id }}</td>
+                            <form action="/admin/update-patient" method="POST">
+                                <input type="hidden" name="abha_id" value="{{ p.abha_id }}">
+                                <td class="p-2"><input type="text" name="name" value="{{ p.name }}" required class="text-xs p-1.5 border rounded w-full"></td>
+                                <td class="p-2">
+                                    <div class="flex gap-1">
+                                        <select name="gender" class="text-xs p-1.5 border rounded">
+                                            <option value="Male" {% if p.gender == 'Male' %}selected{% endif %}>Male</option>
+                                            <option value="Female" {% if p.gender == 'Female' %}selected{% endif %}>Female</option>
+                                            <option value="Other" {% if p.gender == 'Other' %}selected{% endif %}>Other</option>
+                                        </select>
+                                        <input type="date" name="dob" value="{{ p.dob }}" required class="text-xs p-1.5 border rounded w-28">
+                                    </div>
+                                </td>
+                                <td class="p-2"><input type="text" name="mobile" value="{{ p.mobile }}" required class="text-xs p-1.5 border rounded w-28"></td>
+                                <td class="p-2"><input type="text" name="current_hospital" value="{{ p.current_hospital }}" required class="text-xs p-1.5 border rounded w-full"></td>
+                                <td class="p-2 text-right">
+                                    <div class="flex justify-end gap-1">
+                                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-2.5 py-1 rounded">Save</button>
+                            </form>
+
+                                        <!-- Dedicated Delete Action Form -->
+                                        <form action="/admin/delete-patient" method="POST" onsubmit="return confirm('Delete user {{ p.abha_id }}?');" class="inline">
+                                            <input type="hidden" name="abha_id" value="{{ p.abha_id }}">
+                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold px-2.5 py-1 rounded">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

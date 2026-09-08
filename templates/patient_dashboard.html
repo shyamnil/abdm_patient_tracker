@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Portal - ABDM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-indigo-800 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <!-- Patient Profile Info -->
+            <div class="flex items-center gap-3">
+                <img src="{{ patient.photo_url if patient.photo_url else 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" 
+                     alt="{{ patient.name }}" class="w-10 h-10 rounded-full border-2 border-indigo-400 object-cover bg-indigo-900">
+                <div>
+                    <h1 class="text-sm font-bold leading-tight">{{ patient.name }}</h1>
+                    <span class="text-[10px] bg-indigo-900 px-2 py-0.5 rounded text-indigo-200 font-mono">{{ patient.abha_id }}</span>
+                </div>
+            </div>
+
+            <!-- Header Action Buttons -->
+            <div class="flex items-center gap-2">
+                <a href="/home" class="text-xs bg-indigo-700 hover:bg-indigo-600 border border-indigo-500 text-white px-3 py-1.5 rounded-lg transition font-medium">
+                    🏠 Home Page
+                </a>
+                <a href="/logout" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition font-medium">
+                    🚪 Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-6">
+
+        <!-- Associated Hospital Control Panel -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="text-xs font-semibold uppercase text-slate-400">Current Associated Hospital</span>
+                    <h2 class="text-2xl font-bold text-slate-800" id="hospital-display">
+                        {{ patient.current_hospital if patient.current_hospital else 'Central District Hospital' }}
+                    </h2>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleQRScanner()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                        📷 Scan Hospital QR
+                    </button>
+                    <button type="button" onclick="toggleSearchModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                        🔍 Change Hospital
+                    </button>
+                </div>
+            </div>
+
+            <!-- QR Reader Wrapper -->
+            <div id="qr-reader-wrapper" class="hidden bg-slate-50 p-4 rounded-xl border text-center">
+                <div id="reader" class="max-w-xs mx-auto"></div>
+                <button type="button" onclick="toggleQRScanner()" class="mt-2 text-xs text-red-600 font-medium">Close Scanner</button>
+            </div>
+
+            <!-- Change Hospital Selection Dropdown -->
+            <div id="search-wrapper" class="hidden bg-slate-50 p-4 rounded-xl border space-y-3">
+                <label class="block text-xs font-bold text-slate-700">Select Hospital from ABDM Network Directory:</label>
+                <div class="flex gap-2">
+                    <select id="hospital-select" class="w-full text-sm p-2.5 border rounded-xl bg-white outline-none">
+                        {% for hosp in hospital_list %}
+                        <option value="{{ hosp }}" {% if hosp == patient.current_hospital %}selected{% endif %}>{{ hosp }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" onclick="submitHospitalSelection()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visit Date Selector Bar -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold uppercase text-slate-500">📅 Select Visit Date:</span>
+                <form id="date-form" action="/patient-dashboard" method="GET" class="flex gap-2">
+                    <input type="date" name="visit_date" value="{{ selected_date }}" onchange="document.getElementById('date-form').submit()" class="text-xs p-2 border rounded-xl bg-slate-50 font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
+                </form>
+            </div>
+            <div>
+                {% if is_date_frozen %}
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-300">
+                    🔒 Historical Record (Read Only)
+                </span>
+                {% else %}
+                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-300">
+                    ✏️ Active Entry Mode
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Problem Input & History Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Problem Entry Form (Write or Speak) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="text-md font-bold text-slate-800 border-b pb-2">Record Health Problem</h3>
+                
+                <form action="/add-problem" method="POST" class="space-y-4">
+                    <input type="hidden" name="visit_date" value="{{ selected_date }}">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Language</label>
+                        <select name="language" id="speech-lang" {% if is_date_frozen %}disabled{% endif %} class="w-full text-xs p-2.5 border rounded-xl bg-white font-medium disabled:bg-slate-100">
+                            <option value="hi">Hindi (हिंदी)</option>
+                            <option value="bn">Bengali (বাংলা)</option>
+                            <option value="ta">Tamil (தமிழ்)</option>
+                            <option value="te">Telugu (తెలుగు)</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Issue Category</label>
+                        <select name="problem_type" required {% if is_date_frozen %}disabled{% endif %} class="w-full text-xs p-2.5 border rounded-xl bg-white disabled:bg-slate-100">
+                            <option value="Disease / Symptom">Disease / Symptom</option>
+                            <option value="Blood Pressure">Blood Pressure (BP)</option>
+                            <option value="Blood Sugar">Blood Sugar</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-600">Symptom Details (Type or Voice Convert)</label>
+                            {% if not is_date_frozen %}
+                            <button type="button" id="mic-btn" onclick="startVoiceRecognition()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 hover:bg-indigo-100 transition">
+                                🎙️ Speak Now
+                            </button>
+                            {% endif %}
+                        </div>
+                        <textarea name="description" id="problem_desc" rows="4" placeholder="Write or speak symptoms in your language..." required {% if is_date_frozen %}disabled{% endif %} class="w-full text-sm p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none disabled:bg-slate-100"></textarea>
+                        <p class="text-[10px] text-slate-400 mt-1">* Note: Voice output is converted into text above and remains fully editable.</p>
+                    </div>
+
+                    {% if is_date_frozen %}
+                    <button type="button" disabled class="w-full bg-slate-300 text-slate-500 text-xs font-bold py-3 rounded-xl cursor-not-allowed">
+                        Historical Date Frozen
+                    </button>
+                    {% else %}
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 rounded-xl transition">
+                        Save Health Entry
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Date-Wise Problem History Card -->
+<div class="space-y-3">
+    {% for item in problems %}
+    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+            <span class="bg-indigo-100 text-indigo-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                {{ item.problem_type }}
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">Recorded: {{ item.recorded_at }}</span>
+        </div>
+        
+        <!-- Symptom Descriptions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-[10px] text-indigo-600 font-bold uppercase">Regional Entry ({{ item.language }})</div>
+                <p class="text-sm text-slate-800 mt-1">{{ item.original_text }}</p>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-[10px] text-emerald-600 font-bold uppercase">Translated English</div>
+                <p class="text-sm text-slate-800 mt-1">{{ item.translated_text }}</p>
+            </div>
+        </div>
+
+        <!-- Doctor Suggestion & Hospital Card -->
+        <div class="bg-emerald-50/70 border border-emerald-200 p-3.5 rounded-xl space-y-2">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-emerald-900">👨‍⚕️ Doctor Suggestion</span>
+                    <span class="text-[11px] font-semibold text-emerald-700">({{ item.doctor_name }})</span>
+                </div>
+                <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                    🏥 {{ item.hospital_name }}
+                </span>
+            </div>
+            <p class="text-xs text-emerald-950 font-medium leading-relaxed">
+                {{ item.doctor_suggestion }}
+            </p>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-xs text-slate-400 text-center py-6">No problem history recorded for {{ selected_date }}.</p>
+    {% endfor %}
+</div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // Hospital Change Logic
+        let html5QrcodeScanner;
+        function toggleQRScanner() {
+            const wrapper = document.getElementById('qr-reader-wrapper');
+            document.getElementById('search-wrapper').classList.add('hidden');
+            wrapper.classList.toggle('hidden');
+
+            if (!wrapper.classList.contains('hidden')) {
+                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 200 });
+                html5QrcodeScanner.render(onScanSuccess);
+            } else if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            if (html5QrcodeScanner) { html5QrcodeScanner.clear(); }
+            document.getElementById('qr-reader-wrapper').classList.add('hidden');
+            updateHospitalOnServer(decodedText);
+        }
+
+        function toggleSearchModal() {
+            if (html5QrcodeScanner) { html5QrcodeScanner.clear(); }
+            document.getElementById('qr-reader-wrapper').classList.add('hidden');
+            document.getElementById('search-wrapper').classList.toggle('hidden');
+        }
+
+        function submitHospitalSelection() {
+            const selectedHosp = document.getElementById('hospital-select').value;
+            updateHospitalOnServer(selectedHosp);
+        }
+
+        function updateHospitalOnServer(hospitalName) {
+            fetch('/update-hospital', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hospital_name: hospitalName })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'SUCCESS') {
+                    document.getElementById('hospital-display').innerText = data.hospital;
+                    document.getElementById('search-wrapper').classList.add('hidden');
+                }
+            });
+        }
+
+        // Voice-to-Text Speech Recognition
+        function startVoiceRecognition() {
+            const lang = document.getElementById('speech-lang').value;
+            const textarea = document.getElementById('problem_desc');
+            const micBtn = document.getElementById('mic-btn');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                alert("Voice recognition is not supported on this browser. Please type your symptoms.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-IN' : lang === 'ta' ? 'ta-IN' : lang === 'te' ? 'te-IN' : 'en-US';
+            
+            micBtn.innerText = "🔴 Listening...";
+            micBtn.classList.add("animate-pulse", "bg-red-50", "text-red-600");
+
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                // Append or set text and leave it fully editable
+                textarea.value = textarea.value ? textarea.value + " " + transcript : transcript;
+                resetMicButton();
+            };
+
+            recognition.onerror = function() {
+                alert("Speech recognition failed. Please try speaking again or type manually.");
+                resetMicButton();
+            };
+
+            recognition.onend = function() {
+                resetMicButton();
+            };
+
+            function resetMicButton() {
+                micBtn.innerText = "🎙️ Speak Now";
+                micBtn.classList.remove("animate-pulse", "bg-red-50", "text-red-600");
+            }
+        }
+    </script>
+
+</body>
+</html>
