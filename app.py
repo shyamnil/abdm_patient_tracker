@@ -6,15 +6,7 @@ import io
 import requests
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-
 import os
-
-if __name__ == '__main__':
-    init_db()
-    # Read PORT provided by Render (defaults to 5000 locally)
-    port = int(os.environ.get("PORT", 5000))
-    # Must bind to 0.0.0.0 for external routing on cloud hosts
-    app.run(host='0.0.0.0', port=port, debug=False)
 
 app = Flask(__name__)
 app.secret_key = "abdm_secure_secret_key"
@@ -609,6 +601,12 @@ def admin_bulk_upload_patients():
                     ''', (abha_id, name, gender, dob, mobile, current_hospital))
         conn.close()
     return redirect(url_for('admin_dashboard'))
+    
+# Place this at the VERY BOTTOM of app.py (after def init_db() and all routes)
+if __name__ == '__main__':
+    init_db()  # Database initializes only after function definitions are parsed
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
     init_db()
