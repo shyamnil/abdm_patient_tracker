@@ -2,102 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hospital Patient Queue - ABDM HIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+    <style> 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Prevent elastic bounce scroll on mobile webview */
+        html, body { overflow-x: hidden; width: 100%; }
+    </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col justify-between antialiased">
 
     <!-- Top ABDM Utility Header -->
-    <div class="bg-indigo-950 text-indigo-200 text-xs py-2 px-6 border-b border-indigo-900/60">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <span>🏥 Facility Portal: <strong class="text-white">{{ hospital_name }}</strong></span>
+    <div class="bg-indigo-950 text-indigo-200 text-xs py-2 px-3 sm:px-6 border-b border-indigo-900/60">
+        <div class="max-w-7xl mx-auto flex justify-between items-center text-[10px] sm:text-xs">
+            <div class="flex items-center gap-2 sm:gap-4 truncate">
+                <span class="truncate">🏥 <strong class="text-white">{{ hospital_name }}</strong></span>
                 <span class="hidden sm:inline text-indigo-800">|</span>
-                <span class="hidden sm:inline font-mono">HFR ID: {{ hfr_id }}</span>
+                <span class="hidden sm:inline font-mono">HFR: {{ hfr_id }}</span>
             </div>
-            <span class="bg-indigo-900 text-amber-300 font-bold px-2.5 py-0.5 rounded border border-indigo-700/60 text-[10px]">
-                ABDM HIP Sandbox Connected
+            <span class="bg-indigo-900 text-amber-300 font-bold px-2 py-0.5 rounded border border-indigo-700/60 text-[9px] sm:text-[10px] shrink-0">
+                ABDM HIP
             </span>
         </div>
     </div>
 
     <!-- Navigation Header -->
-    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-3.5 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-700 text-white font-black text-lg px-2.5 py-1 rounded-xl shadow-sm tracking-wider">
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="bg-indigo-700 text-white font-black text-base sm:text-lg px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl shadow-xs tracking-wider">
                     ABDM
                 </div>
                 <div>
-                    <h1 class="text-xs font-extrabold text-slate-900 leading-tight">Patient Queue Management</h1>
-                    <p class="text-[10px] text-slate-500 font-medium">Health Information Provider (HIP)</p>
+                    <h1 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">Patient Queue</h1>
+                    <p class="text-[9px] sm:text-[10px] text-slate-500 font-medium">Facility Portal</p>
                 </div>
             </div>
 
-            <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition shadow-sm">
+            <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white text-[11px] sm:text-xs font-extrabold px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl transition shadow-xs">
                 🚪 Logout
             </a>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-6 py-8 space-y-6 w-full flex-grow">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 w-full flex-grow">
 
-        <!-- Search Bar Section -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+        <!-- Search Bar & Queue Summary -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
             <div class="w-full sm:w-1/2 relative">
                 <input 
                     type="text" 
                     id="patientSearchInput" 
                     onkeyup="filterPatientTable()" 
-                    placeholder="🔍 Search patient queue by Name, ABHA ID, or Date..." 
-                    class="w-full text-xs font-semibold p-3 pl-4 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50"
+                    placeholder="🔍 Search Name, ABHA ID..." 
+                    class="w-full text-xs font-semibold p-2.5 sm:p-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50"
                 >
             </div>
-            <div class="text-xs text-slate-500 font-medium">
-                Unique Patients Queued: <strong class="text-indigo-900 font-bold">{{ patient_records|length }}</strong>
+            <div class="text-[11px] sm:text-xs text-slate-500 font-medium text-right sm:text-left">
+                Queued Patients: <strong class="text-indigo-900 font-bold text-xs sm:text-sm">{{ patient_records|length }}</strong>
             </div>
         </div>
 
-        <!-- Patient Queue Table -->
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-slate-200 flex justify-between items-center">
-                <h2 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Current Patient Queue</h2>
-                <span class="text-[10px] bg-slate-100 font-mono text-slate-500 px-2.5 py-1 rounded">Deduplicated View Active</span>
+        <!-- Responsive Patient Queue Card -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-3.5 sm:p-5 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Current Queue</h2>
+                <span class="text-[9px] sm:text-[10px] bg-slate-100 font-mono text-slate-500 px-2 py-0.5 rounded">Deduplicated</span>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="patientQueueTable">
+            <!-- Scrollable Table Wrapper -->
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[600px]" id="patientQueueTable">
                     <thead>
-                        <tr class="bg-slate-50 text-[11px] font-extrabold uppercase text-slate-500 border-b border-slate-200">
-                            <th class="p-4">Patient Name</th>
-                            <th class="p-4">ABHA ID</th>
-                            <th class="p-4">Latest Encounter Date</th>
-                            <th class="p-4">Reported Symptoms</th>
-                            <th class="p-4 text-center">Action</th>
+                        <tr class="bg-slate-50 text-[10px] sm:text-[11px] font-extrabold uppercase text-slate-500 border-b border-slate-200">
+                            <th class="p-3 sm:p-4">Patient</th>
+                            <th class="p-3 sm:p-4">ABHA ID</th>
+                            <th class="p-3 sm:p-4">Encounter Date</th>
+                            <th class="p-3 sm:p-4">Symptoms</th>
+                            <th class="p-3 sm:p-4 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 text-xs font-medium">
                         {% for item in patient_records %}
                         {% if item.id %}
                         <tr class="hover:bg-slate-50/80 transition patient-row">
-                            <td class="p-4 font-bold text-slate-900 font-name">{{ item.name }}</td>
-                            <td class="p-4 font-mono font-bold text-indigo-700 font-abha">{{ item.abha_id }}</td>
-                            <td class="p-4 text-slate-600 font-date">{{ item.visit_date }}</td>
-                            <td class="p-4 text-slate-700 font-symptoms">
-                                <span class="font-extrabold text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded text-[10px] border border-indigo-100 block w-fit mb-1">
+                            <td class="p-3 sm:p-4 font-bold text-slate-900 font-name whitespace-nowrap">{{ item.name }}</td>
+                            <td class="p-3 sm:p-4 font-mono font-bold text-indigo-700 font-abha whitespace-nowrap">{{ item.abha_id }}</td>
+                            <td class="p-3 sm:p-4 text-slate-600 font-date whitespace-nowrap">{{ item.visit_date }}</td>
+                            <td class="p-3 sm:p-4 text-slate-700 font-symptoms">
+                                <span class="font-extrabold text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded text-[9px] border border-indigo-100 inline-block mb-1">
                                     {{ item.problem_type }}
                                 </span>
-                                {{ item.translated_text }}
+                                <p class="line-clamp-2 text-[11px] leading-tight">{{ item.translated_text }}</p>
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-3 sm:p-4 text-center whitespace-nowrap">
                                 <button 
                                     type="button" 
                                     onclick="openActionModal('{{ item.id }}', '{{ item.name }}', '{{ item.abha_id }}')" 
-                                    class="bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold text-xs px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1 mx-auto"
+                                    class="bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold text-[11px] sm:text-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition shadow-xs flex items-center gap-1 mx-auto"
                                 >
                                     ⚡ Action
                                 </button>
@@ -116,60 +121,60 @@
 
     </main>
 
-    <!-- ACTION MODAL: MERGED HISTORICAL RECORDS + CURRENT PRESCRIPTION -->
-    <div id="actionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-6 max-h-[90vh] overflow-y-auto">
+    <!-- MOBILE FIT ACTION MODAL -->
+    <div id="actionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-4xl rounded-t-3xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-200 space-y-4 sm:space-y-6 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto">
             
             <!-- Modal Header -->
             <div class="flex justify-between items-start border-b border-slate-200 pb-3">
-                <div>
-                    <h3 class="text-sm font-black text-slate-900" id="modalPatientName">Patient Consultation</h3>
-                    <p class="text-xs text-indigo-700 font-mono font-bold" id="modalAbhaId"></p>
+                <div class="pr-4">
+                    <h3 class="text-xs sm:text-sm font-black text-slate-900 truncate" id="modalPatientName">Patient Consultation</h3>
+                    <p class="text-[11px] sm:text-xs text-indigo-700 font-mono font-bold truncate" id="modalAbhaId"></p>
                 </div>
-                <button onclick="closeActionModal()" class="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+                <button onclick="closeActionModal()" class="text-slate-400 hover:text-slate-600 font-bold text-base px-2">✕</button>
             </div>
 
-            <!-- SECTION 1: FROZEN PREVIOUS CONSULTATION HISTORY -->
-            <div class="space-y-3">
-                <div class="flex justify-between items-center bg-amber-50 border border-amber-200 p-3 rounded-2xl">
-                    <span class="text-xs font-bold text-amber-900">🔒 Previous Consultation Timeline (Freeze Mode)</span>
-                    <span class="text-[10px] text-amber-800 font-semibold uppercase">Read-Only Protected</span>
+            <!-- SECTION 1: READ-ONLY HISTORICAL RECORDS -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center bg-amber-50 border border-amber-200 p-2.5 rounded-xl">
+                    <span class="text-[11px] sm:text-xs font-bold text-amber-900">🔒 History (Freeze Mode)</span>
+                    <span class="text-[9px] text-amber-800 font-semibold uppercase">Read-Only</span>
                 </div>
 
-                <!-- Dynamic Container for Past Visit Records -->
-                <div id="previousRecordsContainer" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- Scrollable Container for Past Visits -->
+                <div id="previousRecordsContainer" class="space-y-2.5 max-h-48 sm:max-h-60 overflow-y-auto pr-1">
                     <div class="text-center py-4 text-xs text-slate-400">Loading consultation history...</div>
                 </div>
             </div>
 
-            <!-- SECTION 2: CLINICIAN PRESCRIPTION & NEXT VISIT DATE -->
-            <form action="/hospital/add-suggestion" method="POST" class="bg-indigo-950 text-white p-5 rounded-2xl space-y-4">
+            <!-- SECTION 2: PRESCRIPTION & FOLLOW-UP FORM -->
+            <form action="/hospital/add-suggestion" method="POST" class="bg-indigo-950 text-white p-3.5 sm:p-5 rounded-2xl space-y-3 sm:space-y-4">
                 <input type="hidden" name="problem_id" id="modalProblemId">
                 
-                <h4 class="text-xs font-extrabold uppercase tracking-wider text-indigo-300">👨‍⚕️ Clinical Assessment & Orders</h4>
+                <h4 class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-indigo-300">👨‍⚕️ Prescribe & Orders</h4>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-indigo-200 mb-1">Attending Doctor Name</label>
+                        <label class="block text-[10px] font-bold uppercase text-indigo-200 mb-1">Attending Doctor</label>
                         <input type="text" name="doctor_name" id="modalDoctorName" placeholder="Dr. A. Sharma" required class="w-full text-xs p-2.5 border border-indigo-800 rounded-xl bg-indigo-900 text-white outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-amber-300 mb-1">Select Next Follow-up Date ⚠️</label>
+                        <label class="block text-[10px] font-bold uppercase text-amber-300 mb-1">Next Follow-up Date ⚠️</label>
                         <input type="date" name="next_followup_date" required class="w-full text-xs p-2.5 border border-indigo-800 rounded-xl bg-indigo-900 text-white outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold uppercase text-indigo-200 mb-1">Prescribe Medicine / Suggest Investigations & Diagnostics</label>
-                    <textarea name="doctor_suggestion" id="modalDoctorSuggestion" rows="3" placeholder="Enter prescription notes, test recommendations (e.g. CBC, MRI), or treatment guidelines..." required class="w-full text-xs p-3 border border-indigo-800 rounded-xl bg-indigo-900 text-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium"></textarea>
+                    <label class="block text-[10px] font-bold uppercase text-indigo-200 mb-1">Prescription & Diagnostics Suggestions</label>
+                    <textarea name="doctor_suggestion" id="modalDoctorSuggestion" rows="3" placeholder="Enter medicines, tests (e.g. CBC, MRI), or general advice..." required class="w-full text-xs p-2.5 sm:p-3 border border-indigo-800 rounded-xl bg-indigo-900 text-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium"></textarea>
                 </div>
 
-                <div class="flex justify-between items-center pt-2">
-                    <a href="#" id="modalCaseScoreLink" class="text-xs text-indigo-300 hover:text-white font-bold underline">
+                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-1">
+                    <a href="#" id="modalCaseScoreLink" class="text-xs text-indigo-300 hover:text-white font-bold underline text-center sm:text-left">
                         📊 Open Case Risk Engine →
                     </a>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl transition shadow-md">
-                        💾 Save Prescription & Schedule Next Visit
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl transition shadow-md w-full sm:w-auto">
+                        💾 Save Prescription & Follow-up
                     </button>
                 </div>
             </form>
@@ -178,7 +183,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-[10px] sm:text-xs text-slate-500">
         <p>© 2026 National Health Authority - Ayushman Bharat Digital Mission (ABDM)</p>
     </footer>
 
@@ -203,7 +208,6 @@
             const container = document.getElementById('previousRecordsContainer');
             container.innerHTML = `<div class="text-center py-4 text-xs text-slate-400">Loading consultation history...</div>`;
 
-            // Fetch all past consultations for this patient
             fetch(`/api/patient-history/${encodeURIComponent(abhaId)}`)
                 .then(res => res.json())
                 .then(records => {
@@ -212,7 +216,6 @@
                         return;
                     }
 
-                    // Populate current doctor entry fields if available from latest visit
                     const latest = records[0];
                     if (latest.doctor_name && latest.doctor_name !== 'N/A') {
                         document.getElementById('modalDoctorName').value = latest.doctor_name;
@@ -221,28 +224,27 @@
                         document.getElementById('modalDoctorSuggestion').value = latest.doctor_suggestion;
                     }
 
-                    // Render read-only history cards
                     let html = '';
                     records.forEach(rec => {
                         html += `
-                            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2 text-xs">
-                                <div class="flex justify-between items-center text-slate-500 font-mono text-[11px]">
-                                    <span>Encounter Date: <strong class="text-slate-800 font-bold">${rec.visit_date}</strong> (${rec.recorded_at})</span>
-                                    <span class="bg-indigo-50 text-indigo-700 font-extrabold px-2 py-0.5 rounded border border-indigo-100">${rec.problem_type}</span>
+                            <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center text-slate-500 font-mono text-[10px] sm:text-[11px]">
+                                    <span>Date: <strong class="text-slate-800 font-bold">${rec.visit_date}</strong></span>
+                                    <span class="bg-indigo-50 text-indigo-700 font-extrabold px-1.5 py-0.5 rounded border border-indigo-100 text-[9px]">${rec.problem_type}</span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <div class="bg-white p-2.5 rounded-xl border border-slate-200">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Patient Description</span>
-                                        <p class="text-slate-800 font-medium mt-0.5">${rec.original_text}</p>
+                                    <div class="bg-white p-2 rounded-lg border border-slate-200">
+                                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Original Entry</span>
+                                        <p class="text-slate-800 font-medium text-[11px] mt-0.5">${rec.original_text}</p>
                                     </div>
-                                    <div class="bg-white p-2.5 rounded-xl border border-slate-200">
-                                        <span class="text-[10px] text-emerald-600 font-bold uppercase block">English Translation</span>
-                                        <p class="text-slate-800 font-medium mt-0.5">${rec.translated_text}</p>
+                                    <div class="bg-white p-2 rounded-lg border border-slate-200">
+                                        <span class="text-[9px] text-emerald-600 font-bold uppercase block">Translation</span>
+                                        <p class="text-slate-800 font-medium text-[11px] mt-0.5">${rec.translated_text}</p>
                                     </div>
                                 </div>
                                 ${rec.doctor_suggestion && rec.doctor_suggestion !== 'Awaiting doctor consultation.' ? `
-                                <div class="bg-indigo-950 text-white p-3 rounded-xl mt-2 text-[11px]">
-                                    <span class="font-bold text-indigo-300 block">👨‍⚕️ Prescribed Advice (${rec.hospital_name || 'Network Hospital'})</span>
+                                <div class="bg-indigo-950 text-white p-2.5 rounded-lg mt-1 text-[10px] sm:text-[11px]">
+                                    <span class="font-bold text-indigo-300 block">👨‍⚕️ Advice (${rec.hospital_name || 'Network Hospital'})</span>
                                     <p class="mt-0.5 text-slate-200">${rec.doctor_suggestion}</p>
                                 </div>` : ''}
                             </div>
