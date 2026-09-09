@@ -465,9 +465,45 @@ def add_problem():
     
     return redirect(url_for('patient_dashboard', visit_date=visit_date))
 
+@app.route('/hospital/add-suggestion', methods=['POST'])
+def add_doctor_suggestion():
+    if 'user' not in session or session.get('user_type') != 'hospital':
+        return redirect(url_for('hospital_login'))
+
+    problem_id = request.form.get('problem_id')
+    doctor_suggestion = request.form.get('doctor_suggestion')
+    doctor_name = request.form.get('doctor_name')
+    next_followup_date = request.form.get('next_followup_date')  # Selected by Hospital
+    hfr_id = session['user']
+
+    conn = get_db()
+    hosp = conn.execute('SELECT name FROM hospitals WHERE hfr_id = ?', (hfr_id,)).fetchone()
+    hospital_name = hosp['name'] if hosp else "Network Hospital"
+
+    # Get patient ABHA associated with this problem entry
+    problem = conn.execute('SELECT patient_abha FROM patient_problems WHERE id = ?', (problem_id,)).fetchone()
+
+    with conn:
+        # Update Consultation Record
+        conn.execute('''
+            UPDATE patient_problems 
+            SET doctor_suggestion = ?, doctor_name = ?, hospital_name = ?
+            WHERE id = ?
+        ''', (doctor_suggestion, doctor_name, hospital_name, problem_id))
+
+        # Synchronize Next Follow-up Date with Patient Case
+        if problem and next_followup_date:
+            conn.execute('''
+                UPDATE patient_cases 
+                SET next_followup_date = ?, primary_doctor = ?
+                WHERE patient_abha = ? AND stage != "CLOSED"
+            ''', (next_followup_date, doctor_name, problem['patient_abha']))
+
+    conn.close()
+    return redirect(url_for('hospital_dashboard'))
+
 # --- CLINICAL PORTAL & DOCTOR ADVICE ---
 
-# --- HOSPITAL DASHBOARD (DISTINCT PATIENT QUEUE) ---
 @app.route('/hospital-dashboard')
 def hospital_dashboard():
     if 'user' not in session or session.get('user_type') != 'hospital':
@@ -479,38 +515,17 @@ def hospital_dashboard():
     hosp = conn.execute('SELECT * FROM hospitals WHERE hfr_id = ?', (hfr_id,)).fetchone()
     hospital_name = hosp['name'] if hosp else "Central District Hospital"
     
-    # Query only the latest problem record for each unique patient linked to this hospital
+    patients = conn.execute('SELECT * FROM patients WHERE current_hospital = ?', (hospital_name,)).fetchall()
     patient_records = conn.execute('''
-        SELECT pp.id, p.name, p.abha_id, p.current_hospital, pp.problem_type, 
-               pp.original_text, pp.translated_text, pp.recorded_at, pp.visit_date, 
-               pp.doctor_suggestion, pp.doctor_name, pp.hospital_name AS treating_hospital
+        SELECT pp.id, p.name, p.abha_id, p.current_hospital, pp.problem_type, pp.original_text, pp.translated_text, pp.recorded_at, pp.visit_date, pp.doctor_suggestion, pp.doctor_name, pp.hospital_name AS treating_hospital
         FROM patients p
         INNER JOIN patient_problems pp ON p.abha_id = pp.patient_abha
-        WHERE p.current_hospital = ? AND pp.id IN (
-            SELECT MAX(id) FROM patient_problems GROUP BY patient_abha
-        )
+        WHERE p.current_hospital = ?
         ORDER BY pp.id DESC
     ''', (hospital_name,)).fetchall()
     
     conn.close()
-    return render_template('index.html', patient_records=patient_records, hospital_name=hospital_name, hfr_id=hfr_id)
-
-# --- API: FETCH ENTIRE PATIENT HISTORY FOR MODAL ---
-@app.route('/api/patient-history/<path:abha_id>', methods=['GET'])
-def get_patient_history(abha_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    conn = get_db()
-    records = conn.execute('''
-        SELECT id, problem_type, original_text, translated_text, visit_date, recorded_at, doctor_suggestion, doctor_name, hospital_name
-        FROM patient_problems
-        WHERE patient_abha = ?
-        ORDER BY visit_date DESC, id DESC
-    ''', (abha_id,)).fetchall()
-    
-    conn.close()
-    return jsonify([dict(r) for r in records])
+    return render_template('index.html', patients=patients, patient_records=patient_records, hospital_name=hospital_name, hfr_id=hfr_id)
 
 @app.route('/hospital/add-suggestion', methods=['POST'])
 def add_doctor_suggestion():
@@ -520,14 +535,11 @@ def add_doctor_suggestion():
     problem_id = request.form.get('problem_id')
     doctor_suggestion = request.form.get('doctor_suggestion')
     doctor_name = request.form.get('doctor_name')
-    next_followup_date = request.form.get('next_followup_date')
     hfr_id = session['user']
 
     conn = get_db()
     hosp = conn.execute('SELECT name FROM hospitals WHERE hfr_id = ?', (hfr_id,)).fetchone()
     hospital_name = hosp['name'] if hosp else "Network Hospital"
-
-    problem = conn.execute('SELECT patient_abha FROM patient_problems WHERE id = ?', (problem_id,)).fetchone()
 
     with conn:
         conn.execute('''
@@ -535,13 +547,6 @@ def add_doctor_suggestion():
             SET doctor_suggestion = ?, doctor_name = ?, hospital_name = ?
             WHERE id = ?
         ''', (doctor_suggestion, doctor_name, hospital_name, problem_id))
-
-        if problem and next_followup_date:
-            conn.execute('''
-                UPDATE patient_cases 
-                SET next_followup_date = ?, primary_doctor = ?
-                WHERE patient_abha = ? AND stage != "CLOSED"
-            ''', (next_followup_date, doctor_name, problem['patient_abha']))
 
     conn.close()
     return redirect(url_for('hospital_dashboard'))

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case #{{ case.case_id }} - Clinical Risk Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+    <!-- Top Utility Bar -->
+    <header class="bg-slate-900 text-white p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="/hospital-dashboard" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700">← Back</a>
+                <h1 class="text-base font-bold">Case #{{ case.case_id }} — {{ patient.name }}</h1>
+            </div>
+            <span class="text-xs font-mono bg-indigo-900 text-indigo-200 px-3 py-1 rounded-full border border-indigo-700">
+                Stage: {{ case.stage }}
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-6">
+
+        <!-- Header Scorecard & AI Case Summary Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Dynamic Case Health Score -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Dynamic Case Health Score</span>
+                    <div class="flex items-baseline gap-3 mt-2">
+                        <span class="text-5xl font-black {% if health_info.score >= 85 %}text-emerald-600{% elif health_info.score >= 65 %}text-amber-500{% else %}text-red-600{% endif %}">
+                            {{ health_info.score }}
+                        </span>
+                        <span class="text-sm font-bold text-slate-500">/ 100</span>
+                    </div>
+                    <p class="text-xs font-semibold mt-1">{{ health_info.status }}</p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Identified Risk Factors:</span>
+                    {% for risk in health_info.risk_factors %}
+                    <p class="text-[11px] text-red-600 font-medium">• {{ risk }}</p>
+                    {% else %}
+                    <p class="text-[11px] text-emerald-600 font-medium">✓ Optimal treatment adherence</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 🧠 AI Case Summary -->
+            <div class="bg-indigo-950 text-white p-6 rounded-2xl shadow-md border border-indigo-900 md:col-span-2 space-y-3">
+                <div class="flex justify-between items-center border-b border-indigo-800/80 pb-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                        🧠 AI Case Summary & Insights
+                    </h3>
+                    <span class="text-[10px] bg-indigo-900 text-indigo-200 px-2 py-0.5 rounded font-mono">Real-time Synthesis</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div class="bg-indigo-900/50 p-2.5 rounded-xl border border-indigo-800">
+                        <span class="text-[10px] text-indigo-300 block">Patient Details</span>
+                        <p class="font-bold text-white mt-0.5">{{ ai_summary.patient_name }} ({{ ai_summary.age }})</p>
+                    </div>
+                    <div class="bg-indigo-900/50 p-2.5 rounded-xl border border-indigo-800">
+                        <span class="text-[10px] text-indigo-300 block">Encounters</span>
+                        <p class="font-bold text-white mt-0.5">{{ ai_summary.total_encounters }} Consultations</p>
+                    </div>
+                    <div class="bg-indigo-900/50 p-2.5 rounded-xl border border-indigo-800">
+                        <span class="text-[10px] text-indigo-300 block">Pending Tests</span>
+                        <p class="font-bold text-amber-400 mt-0.5">{{ ai_summary.pending_investigations }} Investigations</p>
+                    </div>
+                    <div class="bg-indigo-900/50 p-2.5 rounded-xl border border-indigo-800">
+                        <span class="text-[10px] text-indigo-300 block">Follow-up Status</span>
+                        <p class="font-bold text-red-400 mt-0.5">{{ case.next_followup_date or 'Not Set' }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900/80 p-3 rounded-xl border border-indigo-700/80 text-xs">
+                    <span class="font-bold text-amber-300">⚠️ Critical Action Required:</span>
+                    <p class="text-indigo-100 mt-0.5">{{ ai_summary.key_risk }}</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Ownership & Investigation Matrix -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Case Ownership & Escalation -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="text-xs font-bold uppercase text-slate-700 border-b pb-2">👤 Case Ownership & Accountability</h3>
+                
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <span class="text-[10px] text-slate-400 block font-semibold">ATTENDING DOCTOR</span>
+                        <p class="font-bold text-slate-800">{{ case.primary_doctor }}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block font-semibold">ASSIGNED CASE COORDINATOR</span>
+                        <p class="font-bold text-indigo-700">{{ case.case_coordinator }}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block font-semibold">LAST CONTACTED DATE</span>
+                        <p class="font-mono text-slate-700">{{ case.last_contacted_date or 'No contact recorded' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investigation Tracker -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 md:col-span-2 space-y-4">
+                <h3 class="text-xs font-bold uppercase text-slate-700 border-b pb-2">🔬 Investigation Tracker & Review Protocol</h3>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 font-bold uppercase">
+                            <tr>
+                                <th class="p-2">Test Name</th>
+                                <th class="p-2">Requested Date</th>
+                                <th class="p-2">Status</th>
+                                <th class="p-2 text-right">Clinician Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for inv in investigations %}
+                            <tr>
+                                <td class="p-2 font-bold text-slate-800">
+                                    {{ inv.test_name }}
+                                    {% if inv.is_critical %}<span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold ml-1">CRITICAL</span>{% endif %}
+                                </td>
+                                <td class="p-2 font-mono text-slate-500">{{ inv.requested_date }}</td>
+                                <td class="p-2">
+                                    {% if inv.status == 'REVIEWED' %}
+                                    <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">✅ Reviewed</span>
+                                    {% elif inv.status == 'COMPLETED' %}
+                                    <span class="text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full font-bold">⏳ Completed</span>
+                                    {% else %}
+                                    <span class="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-bold">⚠️ Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-2 text-right">
+                                    <form action="/case/update-investigation" method="POST" class="inline-flex gap-1">
+                                        <input type="hidden" name="inv_id" value="{{ inv.id }}">
+                                        <input type="hidden" name="case_id" value="{{ case.case_id }}">
+                                        <select name="status" onchange="this.form.submit()" class="text-[11px] border rounded p-1 font-medium outline-none">
+                                            <option value="PENDING" {% if inv.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                            <option value="COMPLETED" {% if inv.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                            <option value="REVIEWED" {% if inv.status == 'REVIEWED' %}selected{% endif %}>Mark Reviewed</option>
+                                        </select>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-400">No laboratory or imaging investigations requested.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Communication Audit Trail -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xs font-bold uppercase text-slate-700">📱 Patient Communication Audit Log</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Log Form -->
+                <form action="/case/add-log" method="POST" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <input type="hidden" name="case_id" value="{{ case.case_id }}">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase">Record Patient Contact</h4>
+                    
+                    <select name="channel" required class="w-full text-xs p-2 border rounded-lg">
+                        <option value="Phone Call">📞 Phone Call</option>
+                        <option value="SMS Reminder">📱 SMS Reminder</option>
+                        <option value="WhatsApp">💬 WhatsApp Message</option>
+                    </select>
+
+                    <textarea name="notes" placeholder="Notes (e.g. Patient verified MRI completed, scheduled follow-up for 15 Sep)..." required class="w-full text-xs p-2 border rounded-lg outline-none" rows="3"></textarea>
+
+                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 rounded-lg">
+                        Log Interaction
+                    </button>
+                </form>
+
+                <!-- Audit List -->
+                <div class="md:col-span-2 space-y-2 max-h-60 overflow-y-auto">
+                    {% for log in logs %}
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-start text-xs">
+                        <div class="space-y-1">
+                            <span class="font-bold text-indigo-700">{{ log.channel }}</span>
+                            <p class="text-slate-700 font-medium">{{ log.notes }}</p>
+                        </div>
+                        <div class="text-right text-[10px] text-slate-400 font-mono">
+                            <p>{{ log.timestamp }}</p>
+                            <p>By: {{ log.logged_by }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-slate-400 text-center py-8">No outreach interactions recorded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

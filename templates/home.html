@@ -1,220 +1,339 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayushman Bharat Digital Mission (ABDM) - Portal</title>
+    <title>Ayushman Bharat Digital Mission (ABDM) - Digital Health Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for rendering registration graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen justify-between">
 
-<!-- Hackathon Demo Banner -->
-<div class="bg-amber-500 text-slate-900 text-[11px] font-bold py-1 px-4 text-center tracking-wide shadow-inner">
-    ⚠️ DEMO PROTOTYPE ONLY — Built for Hackathon Demonstration Purposes | ABDM Sandbox Simulation
-</div>
-
-    <!-- Top Utility & Helpline Bar -->
-    <div class="bg-indigo-900 text-indigo-100 text-xs py-2 px-6">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <!-- Top Utility Bar -->
+    <div class="bg-indigo-950 text-indigo-200 text-xs py-2 px-6 border-b border-indigo-900/60">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
             <div class="flex items-center gap-6">
-                <span>📞 Toll-Free Helpline: <strong class="text-white">14477</strong> / <strong class="text-white">1800-11-4477</strong></span>
-                <span>📧 Support: <strong class="text-white">abdm@nha.gov.in</strong></span>
+                <span class="flex items-center gap-1.5"><span class="text-amber-400">📞</span> Toll-Free Helpline: <strong class="text-white">14477 / 1800-11-4477</strong></span>
+                <span class="hidden md:flex items-center gap-1.5"><span class="text-indigo-400">✉️</span> Support: <strong class="text-white">abdm@nha.gov.in</strong></span>
             </div>
-            <div class="flex items-center gap-4">
-                <a href="/downloads" class="hover:underline flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Downloads
-                </a>
-                <span>|</span>
-                <a href="#notices" class="hover:underline">Notices & Circulars</a>
+            <div class="flex items-center gap-4 text-[11px] font-medium">
+                <a href="#resources" class="hover:text-white transition">📥 Downloads</a>
+                <span class="text-indigo-800">|</span>
+                <a href="#notices" class="hover:text-white transition">📢 Notices & Circulars</a>
+                <span class="text-indigo-800">|</span>
+                <span class="bg-indigo-900/80 text-amber-300 px-2 py-0.5 rounded border border-indigo-700/50 font-semibold">
+                    ⚡ Hackathon Prototype
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- Navigation Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <!-- Brand Logos -->
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-700 text-white p-2 rounded-lg font-bold text-xl tracking-wider">ABDM</div>
+    <!-- Main Navigation Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-3.5 flex justify-between items-center">
+            
+            <!-- Brand Identity -->
+            <div class="flex items-center gap-3.5">
+                <div class="bg-gradient-to-tr from-indigo-700 to-indigo-600 text-white font-black text-xl px-3 py-1.5 rounded-xl shadow-md tracking-wider border border-indigo-500/30">
+                    ABDM
+                </div>
                 <div>
-                    <h1 class="text-md font-bold text-slate-800 leading-tight">Ayushman Bharat Digital Mission</h1>
-                    <p class="text-xs text-slate-500">National Health Authority</p>
+                    <h1 class="text-base font-extrabold text-slate-900 leading-tight tracking-tight">Ayushman Bharat Digital Mission</h1>
+                    <p class="text-[11px] text-slate-500 font-semibold">National Health Authority • Government of India</p>
                 </div>
             </div>
 
-            <!-- Navigation Links -->
-            <nav class="flex items-center gap-2">
-                <a href="/abha-creation" class="text-xs font-semibold px-3 py-2 text-indigo-700 hover:bg-indigo-50 rounded-lg transition">ABHA Creation</a>
-                <a href="/login" class="text-xs font-semibold px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition">Patient Login</a>
-                <a href="/hospital-login" class="text-xs font-semibold px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition">Hospital Login</a>
-                <a href="/admin-login" class="text-xs font-semibold px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg transition">Admin Login</a>
-            </nav>
+            <!-- Quick Action Portals Navigation -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="/abha-creation" class="text-xs font-bold text-indigo-700 hover:text-indigo-900 px-3.5 py-2 rounded-xl hover:bg-indigo-50 transition">
+                    + Create ABHA
+                </a>
+                <a href="/login" class="text-xs font-bold text-slate-700 hover:text-indigo-700 px-3.5 py-2 rounded-xl hover:bg-slate-100 transition border border-slate-200">
+                    Patient Portal
+                </a>
+                <a href="/hospital-login" class="text-xs font-bold text-slate-700 hover:text-indigo-700 px-3.5 py-2 rounded-xl hover:bg-slate-100 transition border border-slate-200">
+                    Hospital (HIP)
+                </a>
+                <a href="/admin-login" class="text-xs font-extrabold bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                    🔐 Admin Console
+                </a>
+            </div>
+
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-6 py-8 w-full space-y-8 flex-grow">
+    <!-- Main Body Container -->
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8 flex-grow w-full">
 
-        <!-- Stat Counter Cards -->
+        <!-- Hero Welcome & Overview -->
+        <div class="relative overflow-hidden bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl text-white p-8 sm:p-10 shadow-xl border border-indigo-700/50">
+            <div class="relative z-10 max-w-2xl space-y-3">
+                <span class="inline-block bg-indigo-500/20 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full border border-indigo-400/30">
+                    Unified Health Interface (UHI) Standardized
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug">
+                    Transforming Healthcare Delivery Across India
+                </h2>
+                <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed font-normal">
+                    Connecting citizens, registered hospitals, and clinical providers seamlessly. Manage longitudinal health records, consult attending clinicians, and maintain real-time case tracking.
+                </p>
+                <div class="pt-2 flex flex-wrap gap-3">
+                    <a href="/login" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl transition shadow-lg">
+                        Access Patient Health Dashboard →
+                    </a>
+                    <a href="/hospital-login" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-5 py-3 rounded-xl border border-white/20 transition">
+                        Hospital Login Portal
+                    </a>
+                </div>
+            </div>
+            <!-- Decorative Accent -->
+            <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        </div>
+
+        <!-- Real-Time Metrics Counters -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Total ABHA Created</p>
-                    <h3 class="text-3xl font-extrabold text-slate-800 mt-1">65,42,109</h3>
-                    <p class="text-xs text-emerald-600 mt-1">↑ 12% growth this month</p>
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center relative overflow-hidden group hover:border-indigo-300 transition">
+                <div class="space-y-1">
+                    <span class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Total ABHA Cards Created</span>
+                    <h3 class="text-3xl font-black text-slate-900">65,42,109</h3>
+                    <p class="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                        <span>↑</span> 12% growth this month
+                    </p>
                 </div>
-                <div class="p-3 bg-indigo-50 rounded-xl text-indigo-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Hospitals Registered (HIP)</p>
-                    <h3 class="text-3xl font-extrabold text-slate-800 mt-1">2,34,890</h3>
-                    <p class="text-xs text-emerald-600 mt-1">↑ 450 new facilities added</p>
-                </div>
-                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9"></path></svg>
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-extrabold text-xl shadow-inner">
+                    👤
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Health Records Linked</p>
-                    <h3 class="text-3xl font-extrabold text-slate-800 mt-1">12,89,34,500</h3>
-                    <p class="text-xs text-indigo-600 mt-1">FHIR R4 Standardized</p>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center relative overflow-hidden group hover:border-emerald-300 transition">
+                <div class="space-y-1">
+                    <span class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Registered Facilities (HIP)</span>
+                    <h3 class="text-3xl font-black text-slate-900">2,34,890</h3>
+                    <p class="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                        <span>↑</span> 450 new facilities added
+                    </p>
                 </div>
-                <div class="p-3 bg-amber-50 rounded-xl text-amber-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center font-extrabold text-xl shadow-inner">
+                    🏥
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center relative overflow-hidden group hover:border-amber-300 transition">
+                <div class="space-y-1">
+                    <span class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Health Records Linked</span>
+                    <h3 class="text-3xl font-black text-slate-900">12,89,34,500</h3>
+                    <p class="text-xs text-indigo-600 font-bold">
+                        FHIR R4 Standardized
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center font-extrabold text-xl shadow-inner">
+                    📋
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Interactive Analytics Charts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Registration Growth Trends (2026)</h3>
+                    <span class="text-[10px] bg-slate-100 font-mono text-slate-500 px-2 py-0.5 rounded">Monthly Analytics</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Registered Facilities by Type</h3>
+                    <span class="text-[10px] bg-slate-100 font-mono text-slate-500 px-2 py-0.5 rounded">National Registry</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="barChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Analytical Graphs Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Line Chart: Registrations Over Time -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h2 class="text-md font-bold text-slate-800 mb-4">Registration Growth Trends (2026)</h2>
-                <div class="relative h-64">
-                    <canvas id="growthChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Bar Chart: Facility Distribution -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h2 class="text-md font-bold text-slate-800 mb-4">Registered Facilities by Type</h2>
-                <div class="relative h-64">
-                    <canvas id="facilityChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Downloads & Notices Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="notices">
+        <!-- Resources & Circulars Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="notices">
+            
             <!-- Latest Notices -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h2 class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    Latest Notices & Circulars
-                </h2>
-                <ul class="divide-y divide-slate-100 text-xs">
-                    <li class="py-3 flex justify-between items-center">
-                        <span class="text-slate-700 font-medium">Updated Guidelines for M1, M2, and M3 ABDM Integrations</span>
-                        <span class="text-slate-400">Sep 01, 2026</span>
-                    </li>
-                    <li class="py-3 flex justify-between items-center">
-                        <span class="text-slate-700 font-medium">Standard Operating Procedure for Health Facility Registry (HFR)</span>
-                        <span class="text-slate-400">Aug 24, 2026</span>
-                    </li>
-                    <li class="py-3 flex justify-between items-center">
-                        <span class="text-slate-700 font-medium">Security & Data Privacy Protocols for HIP/HIU Connectors</span>
-                        <span class="text-slate-400">Aug 10, 2026</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Essential Downloads -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h2 class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Downloads & Resources
-                </h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="#" class="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition block text-xs">
-                        <div class="font-semibold text-slate-800">ABHA App (Android)</div>
-                        <div class="text-slate-400 text-[10px]">APK v2.4.1</div>
-                    </a>
-                    <a href="#" class="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition block text-xs">
-                        <div class="font-semibold text-slate-800">FHIR R4 Schema</div>
-                        <div class="text-slate-400 text-[10px]">JSON Specification</div>
-                    </a>
-                    <a href="#" class="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition block text-xs">
-                        <div class="font-semibold text-slate-800">HIP Integration Guide</div>
-                        <div class="text-slate-400 text-[10px]">PDF Manual</div>
-                    </a>
-                    <a href="#" class="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition block text-xs">
-                        <div class="font-semibold text-slate-800">ABDM Sandbox SDK</div>
-                        <div class="text-slate-400 text-[10px]">Python & Node.js</div>
-                    </a>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5 border-b pb-2">
+                    📢 Latest Circulars & Guidelines
+                </h3>
+                <div class="space-y-2 text-xs">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-slate-800">Updated Guidelines for M1, M2, and M3 ABDM Integrations</p>
+                            <span class="text-[10px] text-slate-400 font-mono">Doc ID: NHA/ABDM/2026/08</span>
+                        </div>
+                        <span class="text-[11px] font-mono font-bold text-indigo-600">Sep 01, 2026</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-slate-800">Standard Operating Procedure for Health Facility Registry (HFR)</p>
+                            <span class="text-[10px] text-slate-400 font-mono">Doc ID: NHA/HFR/SOP/102</span>
+                        </div>
+                        <span class="text-[11px] font-mono font-bold text-indigo-600">Aug 24, 2026</span>
+                    </div>
                 </div>
             </div>
+
+            <!-- Resources & Developer Downloads -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3" id="resources">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5 border-b pb-2">
+                    📥 Sandbox Specifications & Resources
+                </h3>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                        <p class="font-bold text-slate-800">ABHA Mobile App</p>
+                        <span class="text-[10px] text-emerald-600 font-bold block">Android APK v2.4.1</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                        <p class="font-bold text-slate-800">FHIR R4 Schemas</p>
+                        <span class="text-[10px] text-indigo-600 font-bold block">JSON Specifications</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                        <p class="font-bold text-slate-800">HIP Integration Guide</p>
+                        <span class="text-[10px] text-slate-500 font-bold block">PDF Technical Manual</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                        <p class="font-bold text-slate-800">Bhashini Voice SDK</p>
+                        <span class="text-[10px] text-amber-600 font-bold block">Translation API Module</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>© 2026 National Health Authority - Ayushman Bharat Digital Mission (ABDM). All Rights Reserved.</p>
-		<p>⚠️ DEMO PROTOTYPE ONLY — Built for Hackathon Demonstration Purposes | ABDM Sandbox Simulation </p>
+    <!-- ABDM Official Style Footer -->
+    <footer class="bg-indigo-950 text-slate-300 text-xs border-t border-indigo-900 mt-12">
+        <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+            
+            <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                    <div class="bg-indigo-700 text-white font-extrabold text-lg px-2.5 py-0.5 rounded-md tracking-wider">
+                        ABDM
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-white leading-tight">Ayushman Bharat Digital Mission</h4>
+                        <p class="text-[10px] text-indigo-300">National Health Authority</p>
+                    </div>
+                </div>
+                <p class="text-[11px] text-indigo-200/80 leading-relaxed">
+                    Building the digital foundation to support integrated healthcare infrastructure across India.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold uppercase text-white tracking-wider border-b border-indigo-800/80 pb-2 mb-3">
+                    Core Components
+                </h4>
+                <ul class="space-y-1.5 text-[11px] text-indigo-200/80">
+                    <li><a href="/abha-creation" class="hover:text-white transition">• ABHA ID Creation</a></li>
+                    <li><a href="/hospital-login" class="hover:text-white transition">• Health Facility Registry (HFR)</a></li>
+                    <li><a href="/admin-login" class="hover:text-white transition">• Healthcare Professionals Registry</a></li>
+                    <li><a href="/login" class="hover:text-white transition">• Unified Health Interface (UHI)</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold uppercase text-white tracking-wider border-b border-indigo-800/80 pb-2 mb-3">
+                    Portals & Login
+                </h4>
+                <ul class="space-y-1.5 text-[11px] text-indigo-200/80">
+                    <li><a href="/login" class="hover:text-white transition">• Patient Health Portal</a></li>
+                    <li><a href="/hospital-login" class="hover:text-white transition">• Hospital / Facility Portal (HIP)</a></li>
+                    <li><a href="/admin-login" class="hover:text-white transition">• NHA Master Console</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold uppercase text-white tracking-wider border-b border-indigo-800/80 pb-2 mb-3">
+                    NHA Contact & Support
+                </h4>
+                <div class="space-y-2 text-[11px] text-indigo-200/90">
+                    <p>📞 Toll-Free: <span class="font-bold text-white">14477 / 1800-11-4477</span></p>
+                    <p>✉️ Email: <span class="font-bold text-white">abdm@nha.gov.in</span></p>
+                    <p>📍 National Health Authority, Connaught Place, New Delhi - 110001</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bg-indigo-900/60 border-t border-indigo-800/60 py-3 px-6 text-center text-[11px] text-indigo-300">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+                <p>© 2026 National Health Authority - Ayushman Bharat Digital Mission (ABDM). All Rights Reserved.</p>
+                <p class="text-amber-400 font-bold">⚠️ Hackathon Demonstration Prototype | Isolated Sandbox Model</p>
+            </div>
+        </div>
     </footer>
 
-    <!-- Chart Scripts -->
+    <!-- Interactive Charts Script -->
     <script>
-        // Line Chart: Patients vs Hospitals Registered
-        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
-        new Chart(ctxGrowth, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                datasets: [
-                    {
-                        label: 'Patients Registered (in Lakhs)',
-                        data: [12, 19, 28, 35, 42, 50, 58, 65],
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Hospitals Registered (in Thousands)',
-                        data: [50, 75, 110, 140, 170, 195, 215, 234],
-                        borderColor: '#059669',
-                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Growth Trends Line Chart
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [
+                        {
+                            label: 'Patients Registered (in Lakhs)',
+                            data: [12, 18, 27, 34, 41, 52, 59, 65],
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Hospitals Registered (in Thousands)',
+                            data: [50, 75, 110, 140, 170, 195, 215, 234],
+                            borderColor: '#059669',
+                            backgroundColor: 'transparent',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                    scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                }
+            });
 
-        // Bar Chart: Facility Types
-        const ctxFacility = document.getElementById('facilityChart').getContext('2d');
-        new Chart(ctxFacility, {
-            type: 'bar',
-            data: {
-                labels: ['Public Hospitals', 'Private Hospitals', 'Diagnostic Labs', 'Pharmacies', 'Clinics'],
-                datasets: [{
-                    label: 'Count',
-                    data: [85000, 62000, 41000, 31000, 15890],
-                    backgroundColor: ['#4f46e5', '#059669', '#d97706', '#2563eb', '#9333ea']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
+            // Facility Types Bar Chart
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Public Hospitals', 'Private Hospitals', 'Diagnostic Labs', 'Pharmacies', 'Clinics'],
+                    datasets: [{
+                        label: 'Facility Count',
+                        data: [85000, 62000, 41000, 31000, 16000],
+                        backgroundColor: ['#4f46e5', '#059669', '#d97706', '#2563eb', '#9333ea'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                }
+            });
         });
     </script>
 
